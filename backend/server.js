@@ -50,6 +50,7 @@ io.on("connection", (socket) => {
   // 💬 REALTIME CHAT BROADCAST
   socket.on("chat", (msg) => {
     const sender = socket.id === Object.keys(users).find(id => users[id] === "chirag") ? "You" : "user1";
+    
     const finalMsg = sender + ": " + msg;
     console.log(finalMsg);
     io.to("main").emit("chat", finalMsg);
