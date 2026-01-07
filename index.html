@@ -1,152 +1,286 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>RandomChat</title>
-<link rel="stylesheet" href="styles.css" />
-<script src="script.js"></script>
 
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RandomChat | Premium</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="script.js" defer></script>
 </head>
 
 <body>
 
-<div class="topbar">
-  <div class="title">RandomChat</div>
-  <div class="top-buttons">
-    <button onclick="alert('🎁 Reward Section (frontend demo)')">Reward</button>
-    <button onclick="localStorage.setItem('coins','0'); alert('💰 Coins Reset ✔')">Reset</button>
-    <button onclick="alert(localStorage.getItem('email') || 'Guest')">Profile</button>
-  </div>
-</div>
+  <div class="app-layout">
 
-<div class="container" style="margin-top:80px;">
-  <div class="chat-card">
-    <div class="header">
-      <div>
-        <div class="title" id="roomTitle">RandomChat</div>
-        <div class="muted" id="roomMeta">have fun</div>
+    <!-- 🟢 Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="user-profile" onclick="toggleSettings()">
+          <div class="avatar">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
+            <span class="status-dot online"></span>
+          </div>
+          <div class="user-info">
+            <h3 id="sidebarUserName">Guest</h3>
+            <span class="status-text">Online</span>
+          </div>
+        </div>
+        <div class="sidebar-actions">
+          <button class="icon-btn" title="New Chat"><i class="fa-solid fa-pen-to-square"></i></button>
+          <button class="icon-btn" onclick="toggleSettings()" title="Settings"><i class="fa-solid fa-gear"></i></button>
+        </div>
       </div>
 
-      <!-- 🎨 Theme Picker -->
-      <div class="theme-picker" id="themePicker">
-        <button data-theme="" class="active">Default</button>
-        <button data-theme="theme-couples">Couples</button>
-        <button data-theme="theme-kids">Kids</button>
-        <button data-theme="theme-elders">Elders</button>
+      <div class="search-container">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search" />
+        </div>
+      </div>
+
+      <div class="room-list">
+        <div class="list-title">Active Rooms</div>
+        <!-- Mock Rooms -->
+        <div class="room-item active" onclick="switchRoom('Global Chat')">
+          <div class="room-avatar"><i class="fa-solid fa-earth-americas"></i></div>
+          <div class="room-details">
+            <div class="room-name">Global Chat</div>
+            <div class="room-last-msg">User: Hello world!</div>
+          </div>
+        </div>
+        <div class="room-item" onclick="switchRoom('Tech Talk')">
+          <div class="room-avatar"><i class="fa-solid fa-microchip"></i></div>
+          <div class="room-details">
+            <div class="room-name">Tech Talk</div>
+            <div class="room-last-msg">React is awesome...</div>
+          </div>
+        </div>
+        <div class="room-item" onclick="switchRoom('Gaming')">
+          <div class="room-avatar"><i class="fa-solid fa-gamepad"></i></div>
+          <div class="room-details">
+            <div class="room-name">Gaming</div>
+            <div class="room-last-msg">GG WP</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 🔵 Main Chat Area -->
+    <main class="chat-area">
+
+      <!-- Header -->
+      <header class="chat-header">
+        <div class="header-left">
+          <div class="chat-avatar">
+            <i class="fa-solid fa-earth-americas"></i>
+          </div>
+          <div class="chat-info">
+            <h2 id="currentRoomName">Global Chat</h2>
+            <span class="chat-status">32 members online</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn"><i class="fa-solid fa-phone"></i></button>
+          <button class="icon-btn"><i class="fa-solid fa-video"></i></button>
+          <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-circle-info"></i></button>
+        </div>
+      </header>
+
+      <!-- Messages -->
+      <div class="messages-container" id="messages">
+        <div class="message-separator">Today</div>
+        <!-- Messages will continue to be injected here by JS -->
+        <div class="message system">
+          <span>Welcome to RandomChat Premium! 🚀</span>
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div class="typing-indicator" id="typingIndicator" style="display: none;">
+        <span>Someone is typing...</span>
+      </div>
+
+      <!-- Input -->
+      <footer class="chat-input-area">
+        <button class="icon-btn" title="Emoji"><i class="fa-regular fa-face-smile"></i></button>
+        <button class="icon-btn" title="Attach"><i class="fa-solid fa-paperclip"></i></button>
+
+        <div class="input-wrapper">
+          <input type="text" id="input" placeholder="Type a message..." autocomplete="off" />
+        </div>
+
+        <button id="send" class="send-btn">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </footer>
+
+    </main>
+
+    <!-- ⚙ Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Settings</h3>
+          <button class="close-btn" onclick="toggleSettings()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-group">
+            <label>Theme</label>
+            <div class="theme-grid" id="themePicker">
+              <button data-theme="" class="theme-btn active"
+                style="background: linear-gradient(135deg, #0a0f1f, #6a0dad);">Default</button>
+              <button data-theme="theme-couples" class="theme-btn"
+                style="background: linear-gradient(135deg, #1f0a14, #b30059);">Couples</button>
+              <button data-theme="theme-kids" class="theme-btn"
+                style="background: linear-gradient(135deg, #071a1c, #ff6f00);">Kids</button>
+              <button data-theme="theme-elders" class="theme-btn"
+                style="background: linear-gradient(135deg, #111, #c89b3c);">Elders</button>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label>Profile</label>
+            <button class="btn secondary" onclick="localStorage.clear(); location.reload();">Reset Data</button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 💬 Chat Messages Box -->
-    <div class="messages" id="messages"></div>
-
-    <!-- ✍ Message Composer -->
-    <div class="composer">
-      <input id="input" type="text" placeholder="Type a message…" autocomplete="off" />
-      <button id="send">Send</button>
-    </div>
   </div>
-</div>
 
-<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-<script>
-  
-  console.log("RandomChat frontend script loaded ✔");
-
-  const socket = io("http://localhost:3000");
-
-  const msgBox = document.getElementById("messages");
-  const msgInput = document.getElementById("input");
-  const sendBtn  = document.getElementById("send"); // send button reference ✔
-  
-  // join same chat room
-  socket.on("connect", () => {
-    console.log("Socket connected ✔🔥");
-    socket.emit("joinRoom", "main");
-
-    const email = localStorage.getItem("email") || "guest@mail.com";
-    localStorage.setItem("email", email);
-    socket.emit("login", { email, password: "00000" });
-  });
-
-  // message send
-  document.getElementById("send").addEventListener("click", () => {
-    const msg = document.getElementById("input").value.trim();
-    if (!msg) return;
-
-    // user bubble append
-    const div = document.createElement("div");
-    
-    msgBox.appendChild(div);
-    msgBox.scrollTop = msgBox.scrollHeight;
-
-    socket.emit("chat", msg);
-
-    // frontend echo reply (bot side)
-    setTimeout(() => {
-      const echoDiv = document.createElement("div");
-     
-      msgBox.appendChild(echoDiv);
-      msgBox.scrollTop = msgBox.scrollHeight;
-    }, 800);
-
-    document.getElementById("input").value = "";
-  });
-
-  // realtime message receive
-  socket.on("chat", (text) => {
-    const div = document.createElement("div");
-    const myEmail = localStorage.getItem("email");
-
-    if (text.startsWith("Echo Reply")) {
-      div.className = "message bot";
-    } else if (text.startsWith("You")) {
-      div.className = "message user";
-    } else if (text.startsWith(myEmail)) {
-      div.className = "message user";
-    } else {
-      div.className = "message bot";
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    // --- UI Interactions ---
+    function toggleSettings() {
+      const modal = document.getElementById('settingsModal');
+      modal.classList.toggle('active');
     }
 
-    div.textContent = text;
-    msgBox.appendChild(div);
-    msgBox.scrollTop = msgBox.scrollHeight;
-  });
+    function switchRoom(roomName) {
+      document.getElementById('currentRoomName').innerText = roomName;
+      // Add visual feedback
+      document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+    }
 
-  // 🎨 Theme picker JS (FIXED + ADDED)
-  document.addEventListener("DOMContentLoaded", () => {
-    const themeButtons = document.querySelectorAll("#themePicker button");
-    console.log("Theme buttons found:", themeButtons.length);
+    // --- Socket & Chat Logic ---
+    const socket = io("http://localhost:3000");
 
-    themeButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        console.log("Theme button clicked:", button.dataset.theme);
+    const msgBox = document.getElementById("messages");
+    const msgInput = document.getElementById("input");
+    const sendBtn = document.getElementById("send");
+    const typingIndicator = document.getElementById("typingIndicator");
 
-        // toggle active button UI
-        themeButtons.forEach(btn => btn.classList.remove("active"));
-        button.classList.add("active");
+    // Initial Setup
+    const email = localStorage.getItem("email") || "Guest";
+    document.getElementById("sidebarUserName").innerText = email.split('@')[0];
 
-        // remove previous themes
-        document.body.classList.remove("theme-couples", "theme-kids", "theme-elders");
+    socket.on("connect", () => {
+      console.log("Connected to server");
+      socket.emit("joinRoom", "main");
+      socket.emit("login", { email, password: "00000" });
+    });
 
-        // apply new theme
-        const theme = button.getAttribute("data-theme");
-        if (theme) document.body.classList.add(theme);
+    // Sending Messages
+    function sendChatMessage() {
+      const msg = msgInput.value.trim();
+      if (!msg) return;
 
-        localStorage.setItem("rc_theme", theme);
-        console.log("Body theme class now:", document.body.classList);
+      // Render locally immediately
+      appendMessage(msg, 'sent');
+
+      socket.emit("chat", msg);
+
+      // Front-end Echo (Mock)
+      setTimeout(() => {
+        // logic is usually server side, but preserving user's echo desire
+      }, 800);
+
+      msgInput.value = "";
+    }
+
+    sendBtn.addEventListener("click", sendChatMessage);
+    msgInput.addEventListener("keypress", (e) => {
+      if (e.key === 'Enter') sendChatMessage();
+    });
+
+    // Receiving Messages
+    socket.on("chat", (text) => {
+      // Avoid double rendering if we handle 'sent' locally, 
+      // but specific logic depends on server. 
+      // The current server broadcasts everything back as "You: ..." or "user1: ...".
+
+      // Parse existing format sent by server: "Sender: Message"
+      let content = text;
+      let type = 'received';
+
+      if (text.startsWith("You:") || text.startsWith(email)) {
+        // It's me
+        // If we already rendered it locally, we might want to ignore or update status
+        // valid check: if the last message was inserted by us < 1 sec ago
+        return; // Simple optimistic UI: don't double append
+      } else if (text.startsWith("Echo Reply")) {
+        content = text; // Bot
+      } else {
+        // Check if it looks like "Name: Msg"
+        if (text.includes(": ")) {
+          const parts = text.split(": ");
+          if (parts[0] === "You") return; // Handled locally
+        }
+      }
+
+      appendMessage(content, type);
+    });
+
+    function appendMessage(text, type) {
+      const div = document.createElement("div");
+      div.className = `message ${type}`;
+
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      // Clean text if it has prefix
+      let cleanText = text;
+      if (text.includes(": ")) cleanText = text.split(": ")[1];
+
+      div.innerHTML = `
+      <div class="bubble">
+        ${cleanText}
+        <span class="meta">
+          ${time} 
+          ${type === 'sent' ? '<i class="fa-solid fa-check-double"></i>' : ''}
+        </span>
+      </div>
+    `;
+
+      msgBox.appendChild(div);
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
+
+    // --- Theme Logic ---
+    document.addEventListener("DOMContentLoaded", () => {
+      const buttons = document.querySelectorAll("#themePicker button");
+      const savedTheme = localStorage.getItem("rc_theme");
+
+      if (savedTheme) document.body.classList.add(savedTheme);
+
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.body.classList.remove("theme-couples", "theme-kids", "theme-elders");
+          const theme = btn.dataset.theme;
+          if (theme) document.body.classList.add(theme);
+          localStorage.setItem("rc_theme", theme);
+
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
       });
     });
 
-    // auto-load saved theme
-    const savedTheme = localStorage.getItem("rc_theme");
-    if (savedTheme) {
-      document.body.classList.add(savedTheme);
-      console.log("Auto loaded saved theme:", savedTheme);
-    }
-  });
-</script>
-
+  </script>
 </body>
+
 </html>
- 
