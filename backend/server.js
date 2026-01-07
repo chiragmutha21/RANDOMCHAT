@@ -10,7 +10,11 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
-app.use(express.static(path.join(__dirname, "../")));
+app.use(express.static(path.join(__dirname, "../"), { index: false }));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../login page.html"));
+});
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -18,7 +22,7 @@ const io = new Server(server, { cors: { origin: "*" } });
 // Demo users
 const demoUsers = [
   { username: "chirag", password: "123456" },
-  { username: "admin",  password: "00000" }
+  { username: "admin", password: "00000" }
 ];
 
 const users = {};
@@ -32,13 +36,14 @@ io.on("connection", (socket) => {
     io.to(room).emit("chat", "System: A user joined ✔");
   });
 
-  socket.on("login", ({ email, password }) => {
-    const found = demoUsers.find(u => u.username === email && u.password === password);
-    if(found){
-      users[socket.id] = "chirag";
-      io.to("main").emit("chat", "user1 joined 👋");
+  socket.on("login_check", ({ username, password }) => {
+    const found = demoUsers.find(u => u.username === username && u.password === password);
+    if (found) {
+      users[socket.id] = username;
+      socket.emit("login_valid");
+      io.to("main").emit("chat", `${username} joined 👋`);
     } else {
-      io.to(socket.id).emit("loginError", "Invalid credentials ❌");
+      socket.emit("login_invalid");
     }
   });
 
