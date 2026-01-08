@@ -19,7 +19,7 @@
     },
     {
       "src": "/",
-      "dest": "/frontend/components/index.html"
+      "dest": "/frontend/components/login_page.html"
     }
   ]
 }
