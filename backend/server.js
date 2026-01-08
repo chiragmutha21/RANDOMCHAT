@@ -47,35 +47,18 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 💬 REALTIME CHAT BROADCAST
   socket.on("chat", (msg) => {
-    const sender = socket.id === Object.keys(users).find(id => users[id] === "chirag") ? "You" : "user1";
-    const finalMsg = sender + ": " + msg;
+    const username = users[socket.id] || "Guest";
+    const finalMsg = `${username}: ${msg}`;
     console.log(finalMsg);
     io.to("main").emit("chat", finalMsg);
   });
 
-  // ❗ disconnect listener ko ANDAR rakha, bahar nahi
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
     delete users[socket.id];
   });
-
 });
 
 server.listen(3000, () => console.log("Server Running on 3000 ✔🔥"));
-
 export default server;
-import express from "express";
-import path from "path";
-
-const App = express();
-
-// Static frontend serve karo
-app.use(express.static(path.join(process.cwd(), "frontend")));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "frontend", "index.html"));
-});
-
-app.listen(3000, () => console.log("Server running"));
