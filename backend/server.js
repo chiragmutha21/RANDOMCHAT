@@ -10,21 +10,10 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
-
-// ❗ Railway me Live URL na milne ka reason ye static HTML serving hai
-// Isliye ise REMOVE nahi kar raha, bas comment kar raha hoon taaki Railway isko Web Service maan le
-// Deploy ke baad agar HTML serve karna ho to wapas uncomment kar dena
-
-/*
 app.use(express.static(path.join(__dirname, "../"), { index: false }));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../login page.html"));
-});
-*/
-
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", message: "Backend is live & healthy 🚀" });
 });
 
 const server = http.createServer(app);
@@ -71,9 +60,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// ❗ Railway hard-coded port ignore karta hai, wo khud PORT assign karta hai
-// Tumne 3000 fallback rakha hai — ye local testing ke liye sahi, deploy ke liye PORT env hi use hoga ✔
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server Running on ${PORT} ✔🔥`));
-
 export default server;
