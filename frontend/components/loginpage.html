@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — RandomChat</title>
+  <link rel="stylesheet" href="/Style/styles.css" />
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>Login to Continue</h1>
+    <input id="userInput" placeholder="Enter Username" />
+    <input id="passInput" type="password" placeholder="Enter Password" />
+
+    <button id="loginBtn">Login</button>
+    <button id="skipBtn" class="secondary">Skip</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const socket = io("http://localhost:3000");
+
+    const loginBtn = document.getElementById("loginBtn");
+    const skipBtn = document.getElementById("skipBtn");
+
+    // Skip → direct next page
+    skipBtn.addEventListener("click", () => {
+      window.location.href = "group-selection.html";
+    });
+
+    // Login → backend verify then next page
+    loginBtn.addEventListener("click", () => {
+      const username = document.getElementById("userInput").value.trim();
+      const password = document.getElementById("passInput").value.trim();
+
+      if (!username || !password) {
+        alert("Please enter username and password or press Skip");
+        return;
+      }
+
+      socket.emit("login_check", { username, password });
+    });
+
+    // Backend response
+    socket.on("login_valid", () => {
+      window.location.href = "group-selection.html";
+    });
+
+    socket.on("login_invalid", () => {
+      alert("Invalid login! Try again or press Skip");
+    });
+  </script>
+
+</body>
+
+</html>

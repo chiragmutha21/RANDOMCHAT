@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RandomChat</title>
+  <link rel="stylesheet" href="/Style/styles.css">
+  <script defer src="/script/script.js"></script>
+
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="title">RandomChat</div>
+    <div class="top-buttons">
+      <button onclick="alert('🎁 Reward Section (frontend demo)')">Reward</button>
+      <button onclick="localStorage.setItem('coins','0'); alert('💰 Coins Reset ✔')">Reset</button>
+      <button onclick="alert(localStorage.getItem('email') || 'Guest')">Profile</button>
+    </div>
+  </div>
+
+  <div class="container" style="margin-top:80px;">
+    <div class="chat-card">
+      <div class="header">
+        <div>
+          <div class="title" id="roomTitle">RandomChat</div>
+          <div class="muted" id="roomMeta">have fun</div>
+        </div>
+
+        <!-- 🎨 Theme Picker -->
+        <div class="theme-picker" id="themePicker">
+          <button data-theme="" class="active">Default</button>
+          <button data-theme="theme-couples">Couples</button>
+          <button data-theme="theme-kids">Kids</button>
+          <button data-theme="theme-elders">Elders</button>
+        </div>
+      </div>
+
+      <!-- 💬 Chat Messages Box -->
+      <div class="messages" id="messages"></div>
+
+
+      <!-- ✍ Message Composer -->
+      <div class="composer">
+        <input id="input" type="text" placeholder="Type a message…" autocomplete="off" />
+        <button id="send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+
+    console.log("RandomChat frontend script loaded ✔");
+
+    const socket = io("http://localhost:3000");
+
+    const msgBox = document.getElementById("messages");
+    const msgInput = document.getElementById("input");
+    const sendBtn = document.getElementById("send"); // send button reference ✔
+
+    // join same chat room
+    socket.on("connect", () => {
+      console.log("Socket connected ✔🔥");
+      socket.emit("joinRoom", "main");
+
+      const email = localStorage.getItem("email") || "guest@mail.com";
+      localStorage.setItem("email", email);
+      socket.emit("login", { email, password: "00000" });
+    });
+
+    // message send
+    document.getElementById("send").addEventListener("click", () => {
+      const msg = document.getElementById("input").value.trim();
+      if (!msg) return;
+
+      // user bubble append
+      const div = document.createElement("div");
+
+      msgBox.appendChild(div);
+      msgBox.scrollTop = msgBox.scrollHeight;
+
+      socket.emit("chat", msg);
+
+
+
+      document.getElementById("input").value = "";
+    });
+
+    // realtime message receive
+    socket.on("chat", (text) => {
+      const div = document.createElement("div");
+      const myEmail = localStorage.getItem("email");
+
+      if (text.startsWith("Echo Reply")) {
+        div.className = "message bot";
+      } else if (text.startsWith("You")) {
+        div.className = "message user";
+      } else if (text.startsWith(myEmail)) {
+        div.className = "message user";
+      } else {
+        div.className = "message bot";
+      }
+
+      div.textContent = text;
+      msgBox.appendChild(div);
+      msgBox.scrollTop = msgBox.scrollHeight;
+    });
+
+    // 🎨 Theme picker JS (FIXED + ADDED)
+    document.addEventListener("DOMContentLoaded", () => {
+      const themeButtons = document.querySelectorAll("#themePicker button");
+      console.log("Theme buttons found:", themeButtons.length);
+
+      themeButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          console.log("Theme button clicked:", button.dataset.theme);
+
+          // toggle active button UI
+          themeButtons.forEach(btn => btn.classList.remove("active"));
+          button.classList.add("active");
+
+          // remove previous themes
+          document.body.classList.remove("theme-couples", "theme-kids", "theme-elders");
+
+          // apply new theme
+          const theme = button.getAttribute("data-theme");
+          if (theme) document.body.classList.add(theme);
+
+          localStorage.setItem("rc_theme", theme);
+          console.log("Body theme class now:", document.body.classList);
+        });
+      });
+
+      // auto-load saved theme
+      const savedTheme = localStorage.getItem("rc_theme");
+      if (savedTheme) {
+        document.body.classList.add(savedTheme);
+        console.log("Auto loaded saved theme:", savedTheme);
+      }
+    });
+  </script>
+
+</body>
+
+</html>

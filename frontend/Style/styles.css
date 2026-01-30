@@ -1,0 +1,311 @@
+:root {
+  /* Ultra Cyber Chat Theme */
+  --primary-start: #0a0f1f;
+  /* pure black-navy */
+  --primary-end: #6a0dad;
+  /* deep neon purple */
+  --accent: #7df9ff;
+  /* ice neon cyan */
+  --bg-image: linear-gradient(135deg, #0a0f1f, #1b1030, #6a0dad, #0a0f1f);
+  --fg-color: #f1f5f9;
+  /* premium white text */
+  --card-bg: rgba(10, 15, 31, 0.55);
+  /* darker glass */
+  --btn-bg: linear-gradient(90deg, #7df9ff, #00c2ff);
+  /* cyan→blue */
+  --btn-fg: #0a0f1f;
+  --input-bg: #0a0f1f;
+  --input-fg: #7df9ff;
+  --input-border: #00c2ff;
+  --panel-bg: rgba(0, 255, 255, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: var(--bg-image);
+  color: var(--fg-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Main Center Card */
+.card {
+  width: 360px;
+  padding: 26px;
+  border-radius: 18px;
+  background: var(--card-bg);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 8px 40px rgba(0, 255, 255, 0.25);
+  text-align: center;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  margin-top: 30px;
+}
+
+/* Headings */
+h1,
+h2,
+h3 {
+  color: var(--accent);
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px var(--accent), 0 0 22px var(--accent);
+}
+
+/* Subtitle */
+p {
+  margin-bottom: 16px;
+  opacity: 0.95;
+}
+
+/* Buttons */
+button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  font-size: 15px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  transition: 0.3s ease;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+
+/* Button hover animation */
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 24px rgba(0, 255, 255, 0.4);
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--input-border);
+  border-radius: 10px;
+  background: var(--input-bg);
+  color: var(--input-fg);
+  margin-bottom: 12px;
+  outline: none;
+  transition: 0.3s;
+}
+
+input:focus {
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
+}
+
+
+
+.message.system {
+  background: rgba(0, 0, 0, 0.25);
+  color: #94a3b8;
+  max-width: 90%;
+  text-align: center;
+  margin: 0 auto 10px auto;
+}
+
+/* Composer input + send */
+.composer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.composer input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+}
+
+.composer button {
+  width: auto;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+/* Top Bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, var(--primary-start), var(--primary-end));
+  color: white;
+  box-shadow: 0 6px 22px rgba(0, 255, 255, 0.2);
+}
+
+.glass-card:hover,
+.card:hover {
+  transform: scale(1.02);
+  transition: 0.4s ease;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.35);
+}
+
+.topbar,
+.topbar .app-name {
+  letter-spacing: 1px;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+
+button {
+  background: var(--btn-bg);
+}
+
+button.secondary:hover {
+  background: rgba(125, 249, 255, 0.1);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+/* Couples Theme */
+/* Theme variables UI me apply ho isliye */
+
+
+.topbar,
+.chat-card {
+  background: var(--primary-start);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+#send {
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 2px solid var(--accent);
+}
+
+#input {
+  border: 2px solid var(--input-border);
+  color: var(--input-fg);
+  background: rgba(125, 249, 255, 0.1);
+}
+
+.theme-couples {
+  --primary-start: #1f0a14;
+  --primary-end: #b30059;
+  --accent: #ff9ecd;
+  --bg-image: linear-gradient(135deg, #1f0a14, #3d001f, #b30059);
+  --btn-bg: linear-gradient(90deg, #ff4d94, #ff9ecd);
+  --input-border: #ff4d94;
+  --input-fg: #ff9ecd;
+}
+
+/* Kids Theme */
+.theme-kids {
+  --primary-start: #071a1c;
+  --primary-end: #ff6f00;
+  --accent: #ffb703;
+  --bg-image: linear-gradient(135deg, #071a1c, #219ebc, #ff6f00);
+  --btn-bg: linear-gradient(90deg, #ffb703, #ff6f00);
+  --btn-fg: #071a1c;
+  --input-border: #ff6f00;
+}
+
+/* Elders Theme */
+.theme-elders {
+  --primary-start: #111;
+  --primary-end: #c89b3c;
+  --accent: #ffd700;
+  --bg-image: linear-gradient(135deg, #111, #2a2a2a, #6b4f1d);
+  --btn-bg: linear-gradient(90deg, #c89b3c, #ffd700);
+  --btn-fg: #111;
+  --input-border: #c89b3c;
+}
+
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.2);
+  z-index: 999;
+}
+
+.top-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.top-buttons button {
+  width: auto;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+#messages {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+
+.message.user {
+  background: var(--btn-bg);
+  color: #0f172a;
+  align-self: flex-end; /* RIGHT ALIGN ✔ */
+  text-align: left; /* WP style me text left hota hai bubble ke andar ✔ */
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 17px;
+}
+.message.bot {
+  background: rgba(255,255,255,0.1);
+  color: var(--accent);
+  align-self: flex-start; /* LEFT ALIGN ✔ */
+  text-align: left;
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 17px;
+}
+
+/* Chat Window Container */
+ .messages {
+  height: 45vh;
+  overflow-y: auto;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 14px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(0, 255, 255, 0.15);
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}

@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/Style/(.*)",
+      "dest": "/frontend/Style/$1"
+    },
+    {
+      "src": "/styles.css",
+      "dest": "/frontend/Style/styles.css"
+    },
+    {
+      "src": "/script/(.*)",
+      "dest": "/frontend/script/$1"
+    },
+    {
+      "src": "/(.*).html",
+      "dest": "/frontend/components/$1.html"
+    },
+    {
+      "src": "/",
+      "dest": "/frontend/components/login_page.html"
+    }
+  ]
+}

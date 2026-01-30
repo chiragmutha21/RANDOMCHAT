@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quick Questions — RandomChat</title>
+  <link rel="stylesheet" href="/Style/styles.css" />
+</head>
+
+<body>
+
+  <main class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div>
+        <h1 style="margin:0">RandomChat</h1>
+        <p class="muted" style="margin:6px 0 0 0">Answer a couple quick questions so we can match you, then create or
+          join a group.</p>
+      </div>
+      <!-- reward moved to corner panel -->
+    </div>
+
+    <div class="card" id="qStep">
+      <label>1) What's your main interest?</label>
+      <select id="q1">
+        <option value="general">General</option>
+        <option value="study">Study</option>
+        <option value="gaming">Gaming</option>
+        <option value="business">Business</option>
+      </select>
+
+      <label style="margin-top:8px">2) Preferred group vibe?</label>
+      <select id="q2">
+        <option value="chill">Chill</option>
+        <option value="focused">Focused</option>
+        <option value="competitive">Competitive</option>
+      </select>
+
+      <label style="margin-top:8px">3) What's your favorite food?</label>
+      <input id="favFood" type="text" placeholder="e.g. Pizza, Sushi" />
+
+      <label style="margin-top:8px">4) What's your favorite movie?</label>
+      <input id="favMovie" type="text" placeholder="e.g. Inception" />
+
+      <div style="margin-top:12px">
+        <button id="toChoose" class="btn primary">Next</button>
+      </div>
+    </div>
+
+    <div class="card" id="chooseStep" style="display:none;margin-top:12px">
+      <h2>Create or Join</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="flex:1;min-width:260px">
+          <h3>Join group</h3>
+          <input id="joinCode" placeholder="Group code" />
+          <input id="joinName" placeholder="Your name (optional)" />
+          <button id="joinBtn" class="btn">Join</button>
+          <div id="joinMsg" class="muted"></div>
+        </div>
+
+        <div style="flex:1;min-width:260px">
+          <h3>Create group</h3>
+          <input id="groupName" placeholder="Group name (optional)" />
+          <label>Select size</label>
+          <select id="groupSize">
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <input id="creatorName" placeholder="Your name (optional)" />
+          <button id="createBtn" class="btn primary">Create</button>
+          <p id="createdInfo" class="muted" style="display:none"></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // theme picker removed
+
+    function readRooms() { try { return JSON.parse(localStorage.getItem('rc_rooms') || '{}') } catch (e) { return {} } }
+    function writeRooms(r) { localStorage.setItem('rc_rooms', JSON.stringify(r)) }
+    function genCode(len = 6) { return Math.random().toString(36).slice(2, 2 + len).toUpperCase() }
+
+    // --- Daily reward system (7-day split of 100 coins) ---
+    function randSplit(total, parts) {
+      // generate random positive integers summing to total
+      const cuts = [];
+      for (let i = 0; i < parts - 1; i++) cuts.push(Math.random());
+      cuts.sort();
+      const nums = [];
+      let last = 0;
+      for (let i = 0; i < cuts.length; i++) {
+        nums.push(cuts[i] - last); last = cuts[i];
+      }
+      nums.push(1 - last);
+      // scale to integers summing to total
+      let ints = nums.map(n => Math.floor(n * total));
+      let sum = ints.reduce((a, b) => a + b, 0);
+      // distribute remainder
+      let i = 0;
+      while (sum < total) { ints[i % parts]++; sum++; i++; }
+      return ints;
+    }
+
+    function startOfWeekKey() {
+      // use ISO week containing today (Monday start)
+      const d = new Date();
+      const day = (d.getDay() + 6) % 7; // 0=Mon
+      const monday = new Date(d);
+      monday.setDate(d.getDate() - day);
+      monday.setHours(0, 0, 0, 0);
+      return monday.toISOString().slice(0, 10);
+    }
+
+    function ensureWeekData() {
+      const weekKey = startOfWeekKey();
+      const storedKey = localStorage.getItem('rc_week_start');
+      if (storedKey !== weekKey) {
+        // new week — create rewards and reset claims
+        const rewards = randSplit(100, 7);
+        localStorage.setItem('rc_week_start', weekKey);
+        localStorage.setItem('rc_week_rewards', JSON.stringify(rewards));
+        localStorage.setItem('rc_week_claims', JSON.stringify([false, false, false, false, false, false, false]));
+      }
+    }
+
+    function getWeekRewards() { return JSON.parse(localStorage.getItem('rc_week_rewards') || '[]'); }
+    function getWeekClaims() { return JSON.parse(localStorage.getItem('rc_week_claims') || '[false,false,false,false,false,false,false]'); }
+
+    function getTodayIndex() {
+      const d = new Date();
+      const day = (d.getDay() + 6) % 7; // Monday=0
+      return day;
+    }
+
+    function getCoins() { return Number(localStorage.getItem('rc_coins') || 0); }
+    function setCoins(n) { localStorage.setItem('rc_coins', String(n)); }
+
+    function updateRewardUI() {
+      ensureWeekData();
+      const rewards = getWeekRewards();
+      const claims = getWeekClaims();
+      const today = getTodayIndex();
+      document.getElementById('coinCount').textContent = getCoins();
+      document.getElementById('todayReward').textContent = rewards[today] !== undefined ? rewards[today] : '—';
+      const btn = document.getElementById('claimRewardBtn');
+      const msg = document.getElementById('claimMsg');
+      if (claims[today]) { btn.textContent = 'Claimed'; btn.disabled = true; msg.textContent = 'You already claimed today.'; }
+      else { btn.textContent = 'Claim'; btn.disabled = false; msg.textContent = ''; }
+    }
+
+    // claim handler and UI initialization moved below (after corner panel creation)
+
+    // corner panel toggle wiring
+    (function () {
+      // create or move reward card into corner panel
+      const panel = document.createElement('div'); panel.className = 'corner-panel';
+      const buttons = document.createElement('div'); buttons.className = 'corner-buttons';
+      const toggleBtn = document.createElement('button'); toggleBtn.id = 'toggleRewardBtn'; toggleBtn.title = 'Rewards'; toggleBtn.innerHTML = '💰';
+      buttons.appendChild(toggleBtn);
+      // reset button
+      const resetBtn = document.createElement('button'); resetBtn.title = 'Reset'; resetBtn.innerHTML = '⟳'; buttons.appendChild(resetBtn);
+      panel.appendChild(buttons);
+      // move existing reward card into panel (or create if missing)
+      let reward = document.getElementById('rewardCard');
+      if (!reward) {
+        reward = document.createElement('div'); reward.id = 'rewardCard'; reward.className = 'card';
+        reward.style.padding = '10px'; reward.style.fontSize = '14px';
+        reward.innerHTML = `
+            <div style="font-weight:700;margin-bottom:6px">Daily Login Reward</div>
+            <div style="margin-bottom:6px">Coins: <span id="coinCount">0</span></div>
+            <div style="margin-bottom:6px">Today's reward: <span id="todayReward">—</span></div>
+            <button id="claimRewardBtn" class="btn">Claim</button>
+            <div id="claimMsg" class="muted" style="margin-top:6px;font-size:12px"></div>
+          `;
+        document.body.appendChild(reward); // temporary
+      }
+      panel.appendChild(reward);
+      document.body.appendChild(panel);
+
+      // toggle show/hide
+      toggleBtn.addEventListener('click', () => {
+        if (reward.style.display === 'none' || getComputedStyle(reward).display === 'none') {
+          reward.style.display = 'block';
+        } else {
+          reward.style.display = 'none';
+        }
+      });
+      // start hidden on small screens
+      if (window.innerWidth < 640) reward.style.display = 'none';
+      // reset behavior — clear persona, coins and weekly data
+      resetBtn.addEventListener('click', () => {
+        if (!confirm('Clear saved persona, coins and weekly rewards?')) return;
+        localStorage.removeItem('rc_persona');
+        localStorage.removeItem('rc_coins');
+        localStorage.removeItem('rc_week_start');
+        localStorage.removeItem('rc_week_rewards');
+        localStorage.removeItem('rc_week_claims');
+        // optional theme key
+        localStorage.removeItem('rc_theme');
+        location.reload();
+      });
+    })();
+
+    // Now that rewardCard exists in the DOM, attach claim handler and initialize UI
+    (function () {
+      const claimBtn = document.getElementById('claimRewardBtn');
+      if (claimBtn) {
+        claimBtn.addEventListener('click', () => {
+          ensureWeekData();
+          const rewards = getWeekRewards();
+          const claims = getWeekClaims();
+          const today = getTodayIndex();
+          if (claims[today]) { updateRewardUI(); return; }
+          const amount = rewards[today] || 0;
+          const current = getCoins();
+          setCoins(current + amount);
+          claims[today] = true;
+          localStorage.setItem('rc_week_claims', JSON.stringify(claims));
+          document.getElementById('claimMsg').textContent = `You claimed ${amount} coins!`;
+          updateRewardUI();
+        });
+      }
+      updateRewardUI();
+    })();
+
+    // attach Next button handler safely
+    (function () {
+      const btn = document.getElementById('toChoose');
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        // store answers (demo)
+        const a1 = document.getElementById('q1') ? document.getElementById('q1').value : '';
+        const a2 = document.getElementById('q2') ? document.getElementById('q2').value : '';
+        const favFood = (document.getElementById('favFood') ? document.getElementById('favFood').value : '').trim();
+        const favMovie = (document.getElementById('favMovie') ? document.getElementById('favMovie').value : '').trim();
+        localStorage.setItem('rc_persona', JSON.stringify({ a1, a2, favFood, favMovie }));
+        const qStep = document.getElementById('qStep'); if (qStep) qStep.style.display = 'none';
+        const chooseStep = document.getElementById('chooseStep'); if (chooseStep) chooseStep.style.display = 'block';
+      });
+    })();
+
+    function normalizeCode(s) { return String(s || '').trim().toUpperCase() }
+    document.getElementById('joinBtn').addEventListener('click', () => {
+      const code = normalizeCode(document.getElementById('joinCode').value);
+      const name = document.getElementById('joinName').value.trim() || 'Guest';
+      const jm = document.getElementById('joinMsg'); jm.textContent = ''; if (!code) { jm.textContent = 'Enter code'; return }
+      const rooms = readRooms(); if (!rooms[code]) { jm.textContent = 'No such group'; return }
+      rooms[code].members = rooms[code].members || []; rooms[code].members.push({ name, joinedAt: Date.now() }); writeRooms(rooms);
+      location.href = `index.html?room=${encodeURIComponent(code)}`;
+    });
+
+    document.getElementById('createBtn').addEventListener('click', () => {
+      const name = document.getElementById('groupName').value.trim() || 'Group';
+      const size = Number(document.getElementById('groupSize').value) || 4;
+      const creator = document.getElementById('creatorName').value.trim() || 'Host';
+      const rooms = readRooms(); let code, tries = 0; do { code = genCode(6); tries++ } while (rooms[code] && tries < 10);
+      rooms[code] = { id: code, name, size, createdAt: Date.now(), members: [{ name: creator, joinedAt: Date.now() }] }; writeRooms(rooms);
+      const info = document.getElementById('createdInfo'); info.style.display = 'block'; info.textContent = `Created ${code}`;
+      setTimeout(() => location.href = `index.html?room=${encodeURIComponent(code)}`, 800);
+    });
+  </script>
+</body>
+
+</html>
