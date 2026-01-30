@@ -6,20 +6,28 @@
       "dest": "/frontend/Style/$1"
     },
     {
-      "src": "/styles.css",
-      "dest": "/frontend/Style/styles.css"
-    },
-    {
       "src": "/script/(.*)",
       "dest": "/frontend/script/$1"
     },
     {
-      "src": "/(.*).html",
-      "dest": "/frontend/components/$1.html"
+      "src": "/group-selection.html",
+      "dest": "/frontend/components/group-selection.html"
+    },
+    {
+      "src": "/index.html",
+      "dest": "/frontend/components/index.html"
+    },
+    {
+      "src": "/loginpage.html",
+      "dest": "/frontend/components/loginpage.html"
     },
     {
       "src": "/",
-      "dest": "/frontend/components/login_page.html"
+      "dest": "/frontend/components/loginpage.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/components/loginpage.html"
     }
   ]
 }
